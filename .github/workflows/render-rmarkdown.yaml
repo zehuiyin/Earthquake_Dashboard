@@ -27,7 +27,7 @@ jobs:
       - uses: r-lib/actions/setup-renv@v2
       
       - name: Render my document to dashboard
-        run: Rscript -e 'rmarkdown::render("/index.Rmd")'
+        run: Rscript -e "rmarkdown::render('index.Rmd')"
       
       - name: Commit results
         run: |
