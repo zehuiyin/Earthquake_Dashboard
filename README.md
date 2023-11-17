@@ -1,0 +1,1 @@
+Earthquake Dashboard: All Earthquakes in Past 7 Days

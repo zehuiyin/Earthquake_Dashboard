@@ -1,0 +1,121 @@
+---
+title: "Earthquake Dashboard: All Earthquakes in Past 7 Days"
+author: "<span>Created by <a href='https://zehuiyin.github.io/' target='_blank' style='color: white;'>Zehui Yin</a></span>"
+date: "`r Sys.Date()`"
+output:
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    theme:
+      version: 5
+      bootswatch: lux
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(plotly)
+library(jsonlite)
+library(sf)
+library(stringr)
+library(DT)
+
+earthquake <- data.frame(mag = NA,
+                         place = NA,
+                         url = NA,
+                         type = NA,
+                         title = NA,
+                         long = NA,
+                         lat = NA)
+
+df <- read_json("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson")
+df <- df$features
+j = 1
+
+for (i in df) {
+  earthquake[j, "mag"] <- i$properties$mag
+  earthquake[j, "place"] <- i$properties$place
+  earthquake[j, "url"] <- i$properties$url
+  earthquake[j, "type"] <- i$properties$type
+  earthquake[j, "title"] <- i$properties$title
+  earthquake[j, "long"] <- i$geometry$coordinates[[1]]
+  earthquake[j, "lat"] <- i$geometry$coordinates[[2]]
+  j <- j + 1
+}
+
+earthquake <- st_as_sf(earthquake, coords = c("long", "lat"), crs = 4326)
+```
+
+Row {data-height=300}
+-------------------------------------
+
+### Description {data-width=400}
+
+This dashboard visualizes the location and magnitude of all the earthquakes that occurred in the past week. The data is sourced from the USGS, which provides real-time GeoJSON feeds of seismic events around the world.
+
+### Number of Earthquakes {data-width=200}
+
+```{r}
+earthquake_count <- nrow(earthquake[earthquake$type == "earthquake",])
+valueBox(earthquake_count, icon = "fa-house-crack")
+```
+
+### Number of Explosions {data-width=200}
+
+```{r}
+explosion_count <- nrow(earthquake[earthquake$type == "explosion",])
+valueBox(explosion_count, icon = "fa-explosion")
+```
+
+### Number of Quarry Blasts {data-width=200}
+
+```{r}
+quarry_blast_count <- nrow(earthquake[earthquake$type == "quarry blast",])
+valueBox(quarry_blast_count, icon = "fa-hill-rockslide")
+```
+
+Row {data-height=1000}
+-------------------------------------
+
+### Earthquake Map {data-width=600}
+
+```{r}
+# schema()
+
+plot_ly() %>%
+  add_trace(
+    type = "scattermapbox",
+    lon = st_coordinates(earthquake)[,1],
+    lat = st_coordinates(earthquake)[,2],
+    mode = "markers",
+    name = str_to_title(earthquake$type),
+    marker = list(
+      size = earthquake$mag*5,
+      sizemin = 1
+    ),
+    hovertext = paste0("Earthquake Magnitude Scales: ", earthquake$mag, "\n",
+                       "Place: ", earthquake$place, "\n",
+                       "URL: ", earthquake$url)
+  ) %>%
+  layout(
+    mapbox = list(
+      style = "open-street-map",
+      zoom = 4,
+      center = list(lon = -98.58, lat = 39.82)
+    ),
+    legend= list(itemsizing = "constant",
+                 title = list(text = "Type")
+                 )
+  ) %>%
+  config(
+    toImageButtonOptions = list(
+      format = "svg", 
+      width = NULL, 
+      height = NULL
+    )
+  )
+```
+
+### Earthquake Data {data-width=300}
+
+```{r}
+datatable(st_drop_geometry(earthquake))
+```
