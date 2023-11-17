@@ -1,7 +1,7 @@
 ---
 title: "Earthquake Dashboard: All Earthquakes in Past 7 Days"
 author: "<span>Created by <a href='https://zehuiyin.github.io/' target='_blank' style='color: white;'>Zehui Yin</a></span>"
-date: "`r Sys.Date()`"
+date: "Updated: `r Sys.Date()`"
 output:
   flexdashboard::flex_dashboard:
     orientation: rows
