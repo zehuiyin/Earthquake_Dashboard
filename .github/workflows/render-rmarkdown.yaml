@@ -5,6 +5,7 @@ on:
     paths: ['**.Rmd']
   schedule:
     - cron: "30 4 * * *"
+  workflow_dispatch:
 
 name: render-rmarkdown
 
