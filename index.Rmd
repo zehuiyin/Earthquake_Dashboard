@@ -175,5 +175,6 @@ plot_ly() %>%
 ### Earthquake Data {data-width=300}
 
 ```{r}
-datatable(st_drop_geometry(earthquake))
+st_drop_geometry(earthquake)[, colnames(st_drop_geometry(earthquake)) != "color"] |>
+  datatable()
 ```
