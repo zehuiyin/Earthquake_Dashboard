@@ -22,6 +22,7 @@ earthquake <- data.frame(mag = NA,
                          place = NA,
                          url = NA,
                          type = NA,
+                         color = NA,
                          title = NA,
                          long = NA,
                          lat = NA)
@@ -35,6 +36,17 @@ for (i in df) {
   earthquake[j, "place"] <- i$properties$place
   earthquake[j, "url"] <- i$properties$url
   earthquake[j, "type"] <- i$properties$type
+  
+  if (i$properties$type == "earthquake") {
+    earthquake[j, "color"] <- "#377eb8"
+  } else if (i$properties$type == "quarry blast") {
+    earthquake[j, "color"] <- "#4daf4a"
+  } else if (i$properties$type == "explosion") {
+    earthquake[j, "color"] <- "#e41a1c"
+  } else {
+    earthquake[j, "color"] <- "black"
+  }
+  
   earthquake[j, "title"] <- i$properties$title
   earthquake[j, "long"] <- i$geometry$coordinates[[1]]
   earthquake[j, "lat"] <- i$geometry$coordinates[[2]]
@@ -83,17 +95,63 @@ Row {data-height=1000}
 plot_ly() %>%
   add_trace(
     type = "scattermapbox",
-    lon = st_coordinates(earthquake)[,1],
-    lat = st_coordinates(earthquake)[,2],
+    lon = st_coordinates(earthquake[which(earthquake$type == "earthquake"),])[,1],
+    lat = st_coordinates(earthquake[which(earthquake$type == "earthquake"),])[,2],
     mode = "markers",
-    name = str_to_title(earthquake$type),
+    name = "Earthquakes",
     marker = list(
-      size = earthquake$mag*5,
-      sizemin = 1
+      size = earthquake[which(earthquake$type == "earthquake"),]$mag*5,
+      color = earthquake[which(earthquake$type == "earthquake"),]$color
     ),
-    hovertext = paste0("Earthquake Magnitude Scales: ", earthquake$mag, "\n",
-                       "Place: ", earthquake$place, "\n",
-                       "URL: ", earthquake$url)
+    hovertext = paste0("Earthquake Magnitude Scales: ", earthquake[which(earthquake$type == "earthquake"),]$mag, "\n",
+                       "Place: ", earthquake[which(earthquake$type == "earthquake"),]$place, "\n",
+                       "Type: ", earthquake[which(earthquake$type == "earthquake"),]$type, "\n",
+                       "URL: ", earthquake[which(earthquake$type == "earthquake"),]$url)
+  ) %>%
+  add_trace(
+    type = "scattermapbox",
+    lon = st_coordinates(earthquake[which(earthquake$type == "explosion"),])[,1],
+    lat = st_coordinates(earthquake[which(earthquake$type == "explosion"),])[,2],
+    mode = "markers",
+    name = "Explosions",
+    marker = list(
+      size = earthquake[which(earthquake$type == "explosion"),]$mag*5,
+      color = earthquake[which(earthquake$type == "explosion"),]$color
+    ),
+    hovertext = paste0("Earthquake Magnitude Scales: ", earthquake[which(earthquake$type == "explosion"),]$mag, "\n",
+                       "Place: ", earthquake[which(earthquake$type == "explosion"),]$place, "\n",
+                       "Type: ", earthquake[which(earthquake$type == "explosion"),]$type, "\n",
+                       "URL: ", earthquake[which(earthquake$type == "explosion"),]$url)
+  ) %>%
+  add_trace(
+    type = "scattermapbox",
+    lon = st_coordinates(earthquake[which(earthquake$type == "quarry blast"),])[,1],
+    lat = st_coordinates(earthquake[which(earthquake$type == "quarry blast"),])[,2],
+    mode = "markers",
+    name = "Quarry Blasts",
+    marker = list(
+      size = earthquake[which(earthquake$type == "quarry blast"),]$mag*5,
+      color = earthquake[which(earthquake$type == "quarry blast"),]$color
+    ),
+    hovertext = paste0("Earthquake Magnitude Scales: ", earthquake[which(earthquake$type == "quarry blast"),]$mag, "\n",
+                       "Place: ", earthquake[which(earthquake$type == "quarry blast"),]$place, "\n",
+                       "Type: ", earthquake[which(earthquake$type == "quarry blast"),]$type, "\n",
+                       "URL: ", earthquake[which(earthquake$type == "quarry blast"),]$url)
+  ) %>%
+  add_trace(
+    type = "scattermapbox",
+    lon = st_coordinates(earthquake[which(!earthquake$type %in% c("earthquake", "explosion", "quarry blast")),])[,1],
+    lat = st_coordinates(earthquake[which(!earthquake$type %in% c("earthquake", "explosion", "quarry blast")),])[,2],
+    mode = "markers",
+    name = "Others",
+    marker = list(
+      size = earthquake[which(!earthquake$type %in% c("earthquake", "explosion", "quarry blast")),]$mag*5,
+      color = earthquake[which(!earthquake$type %in% c("earthquake", "explosion", "quarry blast")),]$color
+    ),
+    hovertext = paste0("Earthquake Magnitude Scales: ", earthquake[which(!earthquake$type %in% c("earthquake", "explosion", "quarry blast")),]$mag, "\n",
+                       "Place: ", earthquake[which(!earthquake$type %in% c("earthquake", "explosion", "quarry blast")),]$place, "\n",
+                       "Type: ", earthquake[which(!earthquake$type %in% c("earthquake", "explosion", "quarry blast")),]$type, "\n",
+                       "URL: ", earthquake[which(!earthquake$type %in% c("earthquake", "explosion", "quarry blast")),]$url)
   ) %>%
   layout(
     mapbox = list(
@@ -102,7 +160,7 @@ plot_ly() %>%
       center = list(lon = -98.58, lat = 39.82)
     ),
     legend= list(itemsizing = "constant",
-                 title = list(text = "Type")
+                 title = list(text = "Type:")
                  )
   ) %>%
   config(
