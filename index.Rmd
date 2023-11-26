@@ -38,13 +38,13 @@ for (i in df) {
   earthquake[j, "type"] <- i$properties$type
   
   if (i$properties$type == "earthquake") {
-    earthquake[j, "color"] <- "#377eb8"
+    earthquake[j, "color"] <- "#5ea0d0"
   } else if (i$properties$type == "quarry blast") {
-    earthquake[j, "color"] <- "#4daf4a"
+    earthquake[j, "color"] <- "#e26661"
   } else if (i$properties$type == "explosion") {
-    earthquake[j, "color"] <- "#e41a1c"
+    earthquake[j, "color"] <- "#fca65b"
   } else {
-    earthquake[j, "color"] <- "black"
+    earthquake[j, "color"] <- "#6fbc65"
   }
   
   earthquake[j, "title"] <- i$properties$title
@@ -160,7 +160,7 @@ plot_ly() %>%
       center = list(lon = -98.58, lat = 39.82)
     ),
     legend= list(itemsizing = "constant",
-                 title = list(text = "Type:")
+                 title = list(text = "Type")
                  )
   ) %>%
   config(
