@@ -17,13 +17,15 @@ library(jsonlite)
 library(sf)
 library(stringr)
 library(DT)
+library(lubridate)
 
 earthquake <- data.frame(mag = NA,
                          place = NA,
-                         url = NA,
+                         time = NA,
                          type = NA,
                          color = NA,
                          title = NA,
+                         url = NA,
                          long = NA,
                          lat = NA)
 
@@ -36,6 +38,7 @@ for (i in df) {
   earthquake[j, "place"] <- i$properties$place
   earthquake[j, "url"] <- i$properties$url
   earthquake[j, "type"] <- i$properties$type
+  earthquake[j, "time"] <- as_datetime(i$properties$time/1000)
   
   if (i$properties$type == "earthquake") {
     earthquake[j, "color"] <- "#377eb8"
@@ -61,7 +64,10 @@ Row {data-height=300}
 
 ### Description {data-width=400}
 
-This dashboard visualizes the location and magnitude of all the earthquakes that occurred in the past week. The data is sourced from the USGS, which provides real-time GeoJSON feeds of seismic events around the world.
+This dashboard visualizes the location and magnitude of all the earthquakes that
+occurred in the past week. The data is sourced from the USGS, which provides 
+real-time GeoJSON feeds of seismic events around the world. Please note that 
+times are expressed in UTC (Coordinated Universal Time).
 
 ### Number of Earthquakes {data-width=200}
 
