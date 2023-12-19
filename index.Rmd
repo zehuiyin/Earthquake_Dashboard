@@ -34,6 +34,19 @@ df <- df$features
 j = 1
 
 for (i in df) {
+  
+  if (!is.numeric(i$properties$mag)) {
+    next
+  }
+  
+  if (!is.numeric(i$geometry$coordinates[[1]])) {
+    next
+  }
+  
+  if (!is.numeric(i$geometry$coordinates[[2]])) {
+    next
+  }
+  
   earthquake[j, "mag"] <- i$properties$mag
   earthquake[j, "place"] <- i$properties$place
   earthquake[j, "url"] <- i$properties$url
